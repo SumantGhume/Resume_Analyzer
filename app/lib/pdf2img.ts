@@ -1,3 +1,7 @@
+// app/lib/pdf2img.ts
+
+import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+
 export interface PdfConversionResult {
     imageUrl: string;
     file: File | null;
@@ -17,6 +21,7 @@ async function loadPdfJs(): Promise<any> {
     loadPromise = import("pdfjs-dist/build/pdf.mjs").then((lib) => {
         // Set the worker source to use local file
         lib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+
         pdfjsLib = lib;
         isLoading = false;
         return lib;
@@ -24,7 +29,6 @@ async function loadPdfJs(): Promise<any> {
 
     return loadPromise;
 }
-
 export async function convertPdfToImage(
     file: File
 ): Promise<PdfConversionResult> {
@@ -53,7 +57,6 @@ export async function convertPdfToImage(
             canvas.toBlob(
                 (blob) => {
                     if (blob) {
-                        // Create a File from the blob with the same name as the pdf
                         const originalName = file.name.replace(/\.pdf$/i, "");
                         const imageFile = new File([blob], `${originalName}.png`, {
                             type: "image/png",
@@ -73,9 +76,10 @@ export async function convertPdfToImage(
                 },
                 "image/png",
                 1.0
-            ); // Set quality to maximum (1.0)
+            );
         });
     } catch (err) {
+        console.log(err);
         return {
             imageUrl: "",
             file: null,
